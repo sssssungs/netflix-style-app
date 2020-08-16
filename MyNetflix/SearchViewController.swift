@@ -42,6 +42,8 @@ extension SearchViewController: UISearchBarDelegate {
         // 결과를 받아와서 collection view로 표현
         SearchAPI.search(searchTerm) { movies in
             // collection view 로 표현하기
+            print("---> 몇개???? \(movies.count), 첫번째꺼 ? \(movies.first?.title)")
+//            movies
         }
         print("search term ====> \(searchTerm)")
 
@@ -55,15 +57,14 @@ class SearchAPI {
         // url session
         let session = URLSession(configuration: .default)
         
+        // url setting
         var urlComponents = URLComponents(string: "http://itunes.apple.com/search?")!
         let mediaQuery = URLQueryItem(name: "media", value: "movie")
         let entityQuery = URLQueryItem(name: "entity", value: "movie")
         let termQuery = URLQueryItem(name: "term", value: term)
-        
         urlComponents.queryItems?.append(mediaQuery)
         urlComponents.queryItems?.append(entityQuery)
         urlComponents.queryItems?.append(termQuery)
-        
         let requestURL = urlComponents.url!
         
         let dataTask = session.dataTask(with: requestURL) { data, response, error in
@@ -80,21 +81,48 @@ class SearchAPI {
                 completion([])
                 return
             }
-            
-            // parsing 해서 completion 전달
-            let string = String(data: resultData, encoding: .utf8)
-            print("---> search result \(string)")
-//            completion([Movie])
-            
+            let movies = SearchAPI.parseMovies(resultData)
+//            print("======>>>> count: \(movies.count)")
+            completion(movies)
         }
+        
         dataTask.resume() // url request start
+    }
+    
+    static func parseMovies(_ data: Data) -> [Movie] {
+        let decoder = JSONDecoder()
+        do {
+            let response = try decoder.decode(Response.self, from: data)
+            let movies = response.movies
+            return movies
+        } catch let error {
+            print("-----> parsing error : \(error.localizedDescription)")
+            return []
+        }
+    }
+    
+}
+
+struct Response: Codable { // codable : json parsing 쉽게 하기위해 사용
+    let resultCount: Int
+    let movies: [Movie]
+    
+    enum CodingKeys: String, CodingKey {
+        case resultCount
+        case movies = "results" // results 로 가지는것을 movies 로 넣어라
     }
 }
 
-struct Response {
-    
-}
-
-struct Movie {
-    
+struct Movie: Codable {
+    let title: String
+    let director: String
+    let thumbnailPath: String
+    let previewURL: String
+ 
+    enum CodingKeys: String, CodingKey {
+        case title = "trackName"
+        case director = "artistName"
+        case thumbnailPath = "artworkUrl100"
+        case previewURL = "previewUrl"
+    }
 }
