@@ -22,8 +22,11 @@ class SearchViewController: UIViewController {
 
 
 extension SearchViewController: UISearchBarDelegate {
+    // 키보드 내리는 함수
     private func dismissKeyboard() {
         searchBar.resignFirstResponder()
+        // 키보드 올라오는게 첫번째 responder로 지정되어 있으므로 resign 시킨다.
+        // 첫번째 Responder란 정확히 무엇인가 ?
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -31,6 +34,8 @@ extension SearchViewController: UISearchBarDelegate {
         dismissKeyboard()
         
         // 검색어 있는지 확인
+        // guard let [A] else [B]
+        // A를 만족하지 않는 경우 B를 실행
         guard let searchTerm = searchBar.text, searchTerm.isEmpty == false else {
             return
         }
@@ -68,7 +73,7 @@ class SearchAPI {
         let requestURL = urlComponents.url!
         
         let dataTask = session.dataTask(with: requestURL) { data, response, error in
-            let successRange = 200..<300
+            let successRange = 200..<300 // success code 범위 지정 200~299
             
             guard error == nil,
                 let statusCode = (response as? HTTPURLResponse)?.statusCode,
