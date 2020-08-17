@@ -1,4 +1,4 @@
 # netflix-style-app
 
-- Swift
+- Swift 4
 - ios 13
