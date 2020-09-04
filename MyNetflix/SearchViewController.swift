@@ -119,7 +119,7 @@ struct Response: Codable { // codable : json parsing 쉽게 하기위해 사용
 }
 
 struct Movie: Codable {
-    let title: String 
+    let title: String  
     let director: String
     let thumbnailPath: String
     let previewURL: String
